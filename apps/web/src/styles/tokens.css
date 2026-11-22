@@ -1,0 +1,17 @@
+:root {
+  /* Institutional Palette */
+  --color-navy: #192c40;
+  --color-paper: #f5f3ed;
+  --color-ink: #30343a;
+  --color-brass: #a88758;
+  --color-sage: #79877f;
+
+  /* Derived Surface & Hairline Tokens */
+  --color-surface: #faf9f5;
+  --color-border: #dcd8ce;
+  --color-ink-muted: #5a6068;
+
+  /* Typography */
+  --font-serif: Georgia, "Times New Roman", Times, serif;
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}

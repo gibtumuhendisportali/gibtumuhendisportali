@@ -1,0 +1,19 @@
+name = "gibtu-engineering-portal-api"
+main = "src/index.ts"
+compatibility_date = "2025-03-01"
+
+[vars]
+ENVIRONMENT = "development"
+ALLOWED_ORIGINS = "http://localhost:3000"
+
+# Cloudflare D1 binding (database_id will be populated during Phase 1 provisioning)
+[[d1_databases]]
+binding = "DB"
+database_name = "gibtu-portal-dev"
+database_id = "00000000-0000-0000-0000-000000000000"
+migrations_dir = "migrations"
+
+# Cloudflare R2 binding (bucket will be provisioned in Phase 2)
+[[r2_buckets]]
+binding = "MEDIA_BUCKET"
+bucket_name = "gibtu-portal-media-dev"

@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Environment files (never commit real secrets)
+.env
+.env.local
+.env.*.local
+.dev.vars
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+.wrangler/
+
+# TypeScript
+*.tsbuildinfo
+
+# Logs & OS
+*.log
+.DS_Store
+Thumbs.db
