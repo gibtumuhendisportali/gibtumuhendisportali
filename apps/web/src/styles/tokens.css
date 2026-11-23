@@ -9,9 +9,10 @@
   /* Derived Surface & Hairline Tokens */
   --color-surface: #faf9f5;
   --color-border: #dcd8ce;
-  --color-ink-muted: #5a6068;
+  --color-ink-muted: #555b62;
 
-  /* Typography */
-  --font-serif: Georgia, "Times New Roman", Times, serif;
-  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* Typography: Manrope for headings, Inter for body */
+  --font-heading: "Manrope", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: "Manrope", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
