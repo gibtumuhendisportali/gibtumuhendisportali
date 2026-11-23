@@ -10,7 +10,11 @@ export interface SupabaseConfigValidation {
 }
 
 export function validateSupabasePublicConfig(
-  env: Record<string, string | undefined> = process.env,
+  env: Record<string, string | undefined> = {
+    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  },
 ): SupabaseConfigValidation {
   const url = env.NEXT_PUBLIC_SUPABASE_URL?.trim();
   const publishableKey = env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim();
@@ -43,5 +47,9 @@ export function validateSupabasePublicConfig(
 }
 
 export function getSupabasePublicConfig(): SupabasePublicConfig | null {
-  return validateSupabasePublicConfig().config;
+  return validateSupabasePublicConfig({
+    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  }).config;
 }
