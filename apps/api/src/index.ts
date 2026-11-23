@@ -1,53 +1,67 @@
 import { Hono } from "hono";
 import type { ApiErrorResponse, HealthResponse } from "@gibtu/shared";
-import type { Env } from "./env.js";
-import { createCorsMiddleware, securityHeadersMiddleware } from "./middleware/security.js";
+import type { Env } from "./env";
+import type { AuthMiddlewareOptions, AuthVariables } from "./middleware/auth";
+import { createCorsMiddleware, securityHeadersMiddleware } from "./middleware/security";
+import { createAuthRoutes } from "./modules/auth/routes";
 
-const app = new Hono<{ Bindings: Env }>();
+export interface AppOptions {
+  auth?: AuthMiddlewareOptions;
+}
 
-app.use("*", securityHeadersMiddleware);
-app.use("*", createCorsMiddleware());
+export function createApp(options: AppOptions = {}) {
+  const app = new Hono<{ Bindings: Env; Variables: AuthVariables }>();
 
-app.get("/health", (c) => {
-  const payload: HealthResponse = {
-    status: "ok",
-    service: "gibtu-engineering-portal-api",
-    timestamp: new Date().toISOString(),
-  };
-  return c.json(payload, 200);
-});
+  app.use("*", securityHeadersMiddleware);
+  app.use("*", createCorsMiddleware());
 
-const v1 = new Hono<{ Bindings: Env }>();
-
-v1.get("/", (c) => {
-  return c.json({
-    service: "gibtu-engineering-portal-api",
-    version: "v1",
-    status: "ready",
+  app.get("/health", (c) => {
+    const payload: HealthResponse = {
+      status: "ok",
+      service: "gibtu-engineering-portal-api",
+      timestamp: new Date().toISOString(),
+    };
+    return c.json(payload, 200);
   });
-});
 
-app.route("/v1", v1);
+  const v1 = new Hono<{ Bindings: Env; Variables: AuthVariables }>();
 
-app.notFound((c) => {
-  const payload: ApiErrorResponse = {
-    error: {
-      code: "NOT_FOUND",
-      message: "İstenen uç nokta bulunamadı.",
-    },
-  };
-  return c.json(payload, 404);
-});
+  v1.get("/", (c) => {
+    return c.json({
+      service: "gibtu-engineering-portal-api",
+      version: "v1",
+      status: "ready",
+    });
+  });
 
-app.onError((err, c) => {
-  console.error("Unhandled API error:", err.message);
-  const payload: ApiErrorResponse = {
-    error: {
-      code: "INTERNAL_ERROR",
-      message: "Beklenmeyen bir sunucu hatası oluştu.",
-    },
-  };
-  return c.json(payload, 500);
-});
+  v1.route("/auth", createAuthRoutes(options.auth));
+
+  app.route("/v1", v1);
+
+  app.notFound((c) => {
+    const payload: ApiErrorResponse = {
+      error: {
+        code: "NOT_FOUND",
+        message: "İstenen uç nokta bulunamadı.",
+      },
+    };
+    return c.json(payload, 404);
+  });
+
+  app.onError((err, c) => {
+    console.error("Unhandled API error:", err.message);
+    const payload: ApiErrorResponse = {
+      error: {
+        code: "INTERNAL_ERROR",
+        message: "Beklenmeyen bir sunucu hatası oluştu.",
+      },
+    };
+    return c.json(payload, 500);
+  });
+
+  return app;
+}
+
+const app = createApp();
 
 export default app;
