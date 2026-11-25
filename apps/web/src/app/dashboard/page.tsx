@@ -56,8 +56,9 @@ export default async function DashboardPage() {
   const d1User = me?.user ?? null;
   const d1Profile = me?.profile ?? null;
   const resolvedEmail = d1User?.email ?? user.email ?? "-";
+  const isVerifiedMember = d1User?.verificationStatus === "verified";
   const isPlatformAdmin =
-    d1User?.role === "platform_admin" && d1User.verificationStatus === "verified";
+    d1User?.role === "platform_admin" && isVerifiedMember;
 
   return (
     <div className="min-h-screen flex flex-col bg-paper text-ink">
@@ -66,7 +67,23 @@ export default async function DashboardPage() {
           <Link href="/" className="font-heading text-lg font-semibold tracking-tight text-navy">
             {dict.common.brandName}
           </Link>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            {isVerifiedMember && (
+              <>
+                <Link
+                  href="/directory"
+                  className="border border-border bg-paper px-3.5 py-1.5 text-sm font-medium text-navy hover:border-navy"
+                >
+                  {dict.dashboard.directoryLink}
+                </Link>
+                <Link
+                  href="/profile"
+                  className="border border-border bg-paper px-3.5 py-1.5 text-sm font-medium text-navy hover:border-navy"
+                >
+                  {dict.dashboard.editProfileLink}
+                </Link>
+              </>
+            )}
             {isPlatformAdmin && (
               <Link
                 href="/admin/verifications"
@@ -193,7 +210,9 @@ export default async function DashboardPage() {
                 <div className="border-t border-border pt-3">
                   <dt className="text-xs text-ink-muted">{dict.dashboard.directoryPrivacyLabel}</dt>
                   <dd className="mt-1 text-xs text-ink-muted">
-                    {dict.dashboard.directoryHiddenText}
+                    {d1Profile.directoryVisible
+                      ? dict.dashboard.directoryVisibleText
+                      : dict.dashboard.directoryHiddenText}
                   </dd>
                 </div>
               </dl>

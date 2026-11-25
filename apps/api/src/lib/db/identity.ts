@@ -25,9 +25,34 @@ interface ProfileRow {
   department: string;
   entry_year: number;
   graduation_year: number | null;
+  headline: string | null;
+  company: string | null;
+  city: string | null;
+  bio: string | null;
+  skills_json: string | null;
+  contact_email: string | null;
+  linkedin_url: string | null;
+  github_url: string | null;
+  website_url: string | null;
+  avatar_key: string | null;
   directory_visible: number;
   show_contact_info: number;
   show_professional_links: number;
+}
+
+export function parseSkillsJson(raw: string | null): string[] {
+  if (!raw) {
+    return [];
+  }
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    if (Array.isArray(parsed)) {
+      return parsed.filter((item): item is string => typeof item === "string");
+    }
+    return [];
+  } catch {
+    return [];
+  }
 }
 
 interface CommunityPermissionRow {
@@ -79,6 +104,8 @@ export async function findMeBySupabaseId(
     db
       .prepare(
         `SELECT full_name, user_type, department, entry_year, graduation_year,
+                headline, company, city, bio, skills_json,
+                contact_email, linkedin_url, github_url, website_url, avatar_key,
                 directory_visible, show_contact_info, show_professional_links
          FROM profiles
          WHERE user_id = ?1
@@ -121,6 +148,16 @@ export async function findMeBySupabaseId(
           department: profileRow.department,
           entryYear: profileRow.entry_year,
           graduationYear: profileRow.graduation_year,
+          headline: profileRow.headline,
+          company: profileRow.company,
+          city: profileRow.city,
+          bio: profileRow.bio,
+          skills: parseSkillsJson(profileRow.skills_json),
+          contactEmail: profileRow.contact_email,
+          linkedinUrl: profileRow.linkedin_url,
+          githubUrl: profileRow.github_url,
+          websiteUrl: profileRow.website_url,
+          avatarKey: profileRow.avatar_key,
           directoryVisible: profileRow.directory_visible === 1,
           showContactInfo: profileRow.show_contact_info === 1,
           showProfessionalLinks: profileRow.show_professional_links === 1,

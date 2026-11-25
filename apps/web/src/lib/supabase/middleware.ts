@@ -2,7 +2,7 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { getSupabasePublicConfig, type SupabasePublicConfig } from "./config";
 
-const PROTECTED_PREFIXES = ["/dashboard", "/onboarding", "/admin"];
+const PROTECTED_PREFIXES = ["/dashboard", "/onboarding", "/admin", "/profile", "/directory"];
 const GUEST_ONLY_PATHS = ["/login", "/register"];
 
 function isProtectedPath(pathname: string): boolean {
