@@ -245,6 +245,66 @@ export const tr: Dictionary = {
       "API oturum doğrulaması şu anda gerçekleştirilemedi. Lütfen daha sonra tekrar deneyin veya yeniden giriş yapın.",
     institutionalStatusTitle: "Kurumsal Üyelik Durumu",
     institutionalStatusBody:
-      "GİBTÜ öğrenci/mezun doğrulaması ve profil yönetimi bir sonraki fazda (Phase 1B) etkinleştirilecektir. E-posta doğrulaması kurumsal onay yerine geçmez.",
+      "GİBTÜ öğrenci/mezun doğrulaması ve profil yönetimi aktif durumdadır.",
+    statusPendingTitle: "Üyelik Başvurunuz İnceleniyor",
+    statusPendingBody:
+      "Başvurunuz alındı. Portal yöneticileri GİBTÜ mühendislik öğrencisi veya mezunu olduğunuzu onaylayana kadar üyelere özel dizin ve etkinlik özelliklerine erişim kısıtlıdır.",
+    statusRejectedTitle: "Üyelik Başvurunuz Onaylanmadı",
+    statusRejectedBody:
+      "Başvurunuz yönetici incelemesi sonucunda onaylanmadı.",
+    statusVerifiedTitle: "Doğrulanmış GİBTÜ Mühendislik Üyesi",
+    statusVerifiedBody:
+      "Kurumsal üyeliğiniz onaylandı. Dizin görünürlüğünüz varsayılan olarak gizlidir; profil ve dizin özellikleri sonraki fazda açılacaktır.",
+    profileSummaryTitle: "Başvuru ve Profil Özeti",
+    fullNameLabel: "Ad Soyad",
+    userTypeLabel: "Üyelik Türü",
+    userTypeStudent: "Öğrenci",
+    userTypeAlumni: "Mezun",
+    departmentLabel: "Mühendislik Bölümü",
+    entryYearLabel: "Giriş Yılı",
+    graduationYearLabel: "Mezuniyet Yılı",
+    directoryPrivacyLabel: "Dizin Görünürlüğü",
+    directoryHiddenText: "Gizli (Varsayılan — yalnızca sizin onayınızla açılır)",
+    adminQueueLink: "Yönetici Doğrulama Kuyruğu",
+  },
+  onboarding: {
+    eyebrow: "Kurumsal Üyelik Başvurusu",
+    title: "Öğrenci veya Mezun Bilgilerinizi Tamamlayın",
+    subtitle:
+      "E-posta adresiniz doğrulandı. GİBTÜ Mühendislik Portalı üyeliğinizin yönetici onayına sunulması için aşağıdaki bilgileri doldurun.",
+    fullNameLabel: "Ad Soyad",
+    userTypeLabel: "Durumunuz",
+    studentOption: "GİBTÜ Mühendislik Öğrencisi",
+    alumniOption: "GİBTÜ Mühendislik Mezunu",
+    departmentLabel: "Bölüm",
+    entryYearLabel: "Giriş Yılı",
+    graduationYearLabel: "Mezuniyet Yılı",
+    verificationNoteLabel: "Doğrulama Notu (İsteğe Bağlı)",
+    verificationNoteHint:
+      "Yönetici onayını kolaylaştıracak kısa bir bilgi ekleyebilirsiniz (ör. öğrenci dönemi veya mezuniyet bilgisi).",
+    kvkkDisclosureLabel:
+      "KVKK Aydınlatma Metni'ni okudum ve kişisel verilerimin üyelik doğrulama amacıyla işlenmesini kabul ediyorum.",
+    kvkkExplicitLabel:
+      "İsteğe bağlı: Gelecekte yalnızca benim seçeceğim profil alanlarının doğrulanmış üyelerle paylaşılmasına ilişkin açık rıza bilgilendirmesini onaylıyorum.",
+    kvkkLinkText: "KVKK Aydınlatma ve Gizlilik İlkeleri",
+    submitButton: "Başvuruyu Gönder",
+    submittingButton: "Kaydediliyor...",
+    privacyDefaultNote:
+      "Not: Profiliniz dizinde varsayılan olarak gizli tutulur. Onay sonrasında iletişim ve bağlantı görünürlüğünü ayrı ayrı yönetebileceksiniz.",
+  },
+  adminVerifications: {
+    eyebrow: "Platform Yönetimi",
+    title: "Üye Doğrulama Kuyruğu",
+    subtitle:
+      "Bekleyen GİBTÜ mühendislik öğrenci ve mezun başvurularını inceleyip onaylayın veya gerekçeli olarak reddedin.",
+    backToDashboard: "Panele Dön",
+    emptyQueue: "Şu anda onay bekleyen başvuru bulunmuyor.",
+    approveButton: "Onayla",
+    rejectButton: "Reddet",
+    rejectionReasonPlaceholder: "Ret gerekçesi (en az 5 karakter)",
+    confirmRejectButton: "Ret Kararını Kaydet",
+    cancelButton: "Vazgeç",
+    decisionSuccess: "Karar kaydedildi.",
+    decisionError: "Karar kaydedilirken bir hata oluştu.",
   },
 };

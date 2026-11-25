@@ -3,7 +3,9 @@ import type { ApiErrorResponse, HealthResponse } from "@gibtu/shared";
 import type { Env } from "./env";
 import type { AuthMiddlewareOptions, AuthVariables } from "./middleware/auth";
 import { createCorsMiddleware, securityHeadersMiddleware } from "./middleware/security";
+import { createAdminRoutes } from "./modules/admin/routes";
 import { createAuthRoutes } from "./modules/auth/routes";
+import { createIdentityRoutes } from "./modules/identity/routes";
 
 export interface AppOptions {
   auth?: AuthMiddlewareOptions;
@@ -35,6 +37,8 @@ export function createApp(options: AppOptions = {}) {
   });
 
   v1.route("/auth", createAuthRoutes(options.auth));
+  v1.route("/", createIdentityRoutes(options.auth));
+  v1.route("/admin", createAdminRoutes(options.auth));
 
   app.route("/v1", v1);
 

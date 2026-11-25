@@ -38,6 +38,7 @@ export async function apiRequest<T>(
   const response = await fetch(`${getApiBaseUrl()}${path}`, {
     ...rest,
     headers: requestHeaders,
+    signal: rest.signal ?? AbortSignal.timeout(8000),
   });
 
   if (!response.ok) {

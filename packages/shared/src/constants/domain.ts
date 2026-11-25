@@ -33,3 +33,13 @@ export const CONSENT_TYPES = [
   "kvkk_explicit_consent",
 ] as const;
 export type ConsentType = (typeof CONSENT_TYPES)[number];
+
+export const KVKK_POLICY_VERSION = "2026-11-v1" as const;
+
+export const ENGINEERING_DEPARTMENTS = [
+  "Bilgisayar Mühendisliği",
+  "Elektrik-Elektronik Mühendisliği",
+  "Endüstri Mühendisliği",
+  "Yapay Zeka ve Veri Mühendisliği",
+] as const;
+export type EngineeringDepartment = (typeof ENGINEERING_DEPARTMENTS)[number];

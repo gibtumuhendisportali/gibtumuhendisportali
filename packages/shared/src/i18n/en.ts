@@ -248,6 +248,66 @@ export const en: Dictionary = {
       "API session verification is currently unavailable. Please try again later or sign in again.",
     institutionalStatusTitle: "Institutional Membership Status",
     institutionalStatusBody:
-      "GIBTU student/alumni verification and profile management will be enabled in Phase 1B. Email verification does not grant institutional approval.",
+      "GIBTU student/alumni verification and profile management are active.",
+    statusPendingTitle: "Application Under Review",
+    statusPendingBody:
+      "Your application has been received. Member-only directory and event features remain restricted until an administrator verifies your GIBTU engineering status.",
+    statusRejectedTitle: "Application Not Approved",
+    statusRejectedBody:
+      "Your membership application was not approved during administrator review.",
+    statusVerifiedTitle: "Verified GIBTU Engineering Member",
+    statusVerifiedBody:
+      "Your institutional membership is verified. Your profile remains hidden in the directory by default.",
+    profileSummaryTitle: "Application & Profile Summary",
+    fullNameLabel: "Full Name",
+    userTypeLabel: "Member Type",
+    userTypeStudent: "Student",
+    userTypeAlumni: "Alumni",
+    departmentLabel: "Engineering Department",
+    entryYearLabel: "Entry Year",
+    graduationYearLabel: "Graduation Year",
+    directoryPrivacyLabel: "Directory Visibility",
+    directoryHiddenText: "Hidden (Default — opt-in only)",
+    adminQueueLink: "Admin Verification Queue",
+  },
+  onboarding: {
+    eyebrow: "Institutional Membership Application",
+    title: "Complete Your Student or Alumni Details",
+    subtitle:
+      "Your email is verified. Provide your academic details below to submit your GIBTU Engineering Portal membership for administrator review.",
+    fullNameLabel: "Full Name",
+    userTypeLabel: "Status",
+    studentOption: "GIBTU Engineering Student",
+    alumniOption: "GIBTU Engineering Alumni",
+    departmentLabel: "Department",
+    entryYearLabel: "Entry Year",
+    graduationYearLabel: "Graduation Year",
+    verificationNoteLabel: "Verification Note (Optional)",
+    verificationNoteHint:
+      "Optionally add brief context to assist administrator review.",
+    kvkkDisclosureLabel:
+      "I have read the KVKK Disclosure Notice and acknowledge the processing of my data for membership verification.",
+    kvkkExplicitLabel:
+      "Optional: I acknowledge the explicit consent terms for sharing selected profile fields with verified members when enabled by me.",
+    kvkkLinkText: "KVKK Disclosure & Privacy Principles",
+    submitButton: "Submit Application",
+    submittingButton: "Submitting...",
+    privacyDefaultNote:
+      "Note: Your profile is hidden in the directory by default.",
+  },
+  adminVerifications: {
+    eyebrow: "Platform Administration",
+    title: "Member Verification Queue",
+    subtitle:
+      "Review pending GIBTU engineering student and alumni applications.",
+    backToDashboard: "Back to Dashboard",
+    emptyQueue: "There are no pending applications.",
+    approveButton: "Approve",
+    rejectButton: "Reject",
+    rejectionReasonPlaceholder: "Rejection reason (at least 5 characters)",
+    confirmRejectButton: "Save Rejection",
+    cancelButton: "Cancel",
+    decisionSuccess: "Decision recorded.",
+    decisionError: "Failed to save decision.",
   },
 };
