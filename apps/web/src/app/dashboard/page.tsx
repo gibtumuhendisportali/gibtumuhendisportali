@@ -59,6 +59,9 @@ export default async function DashboardPage() {
   const isVerifiedMember = d1User?.verificationStatus === "verified";
   const isPlatformAdmin =
     d1User?.role === "platform_admin" && isVerifiedMember;
+  const canCheckIn =
+    isVerifiedMember &&
+    (isPlatformAdmin || (d1User?.communityPermissions.length ?? 0) > 0);
 
   return (
     <div className="min-h-screen flex flex-col bg-paper text-ink">
@@ -77,12 +80,32 @@ export default async function DashboardPage() {
                   {dict.dashboard.directoryLink}
                 </Link>
                 <Link
+                  href="/events"
+                  className="border border-border bg-paper px-3.5 py-1.5 text-sm font-medium text-navy hover:border-navy"
+                >
+                  {dict.dashboard.eventsLink}
+                </Link>
+                <Link
+                  href="/tickets"
+                  className="border border-border bg-paper px-3.5 py-1.5 text-sm font-medium text-navy hover:border-navy"
+                >
+                  {dict.dashboard.ticketsLink}
+                </Link>
+                <Link
                   href="/profile"
                   className="border border-border bg-paper px-3.5 py-1.5 text-sm font-medium text-navy hover:border-navy"
                 >
                   {dict.dashboard.editProfileLink}
                 </Link>
               </>
+            )}
+            {canCheckIn && (
+              <Link
+                href="/check-in"
+                className="border border-brass bg-paper px-3.5 py-1.5 text-sm font-medium text-navy hover:bg-brass/10"
+              >
+                {dict.dashboard.checkInLink}
+              </Link>
             )}
             {isPlatformAdmin && (
               <Link

@@ -6,9 +6,11 @@ import { createCorsMiddleware, securityHeadersMiddleware } from "./middleware/se
 import { createAdminRoutes } from "./modules/admin/routes";
 import { createAuthRoutes } from "./modules/auth/routes";
 import { createDirectoryRoutes } from "./modules/directory/routes";
+import { createEventRoutes } from "./modules/events/routes";
 import { createIdentityRoutes } from "./modules/identity/routes";
 import { createMediaRoutes } from "./modules/media/routes";
 import { createProfileRoutes } from "./modules/profiles/routes";
+import { createTicketRoutes } from "./modules/tickets/routes";
 
 export interface AppOptions {
   auth?: AuthMiddlewareOptions;
@@ -43,6 +45,8 @@ export function createApp(options: AppOptions = {}) {
   v1.route("/", createIdentityRoutes(options.auth));
   v1.route("/profile", createProfileRoutes(options.auth));
   v1.route("/directory", createDirectoryRoutes(options.auth));
+  v1.route("/events", createEventRoutes(options.auth));
+  v1.route("/tickets", createTicketRoutes(options.auth));
   v1.route("/media", createMediaRoutes(options.auth));
   v1.route("/admin", createAdminRoutes(options.auth));
 
