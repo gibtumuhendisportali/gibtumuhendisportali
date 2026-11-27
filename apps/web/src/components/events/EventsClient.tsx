@@ -51,6 +51,9 @@ export function EventsClient({
   const [actionError, setActionError] = useState<string | null>(null);
 
   const canCreate = canCreatePlatformWide || manageableCommunities.length > 0;
+  const manageableCommunityIds = new Set(
+    manageableCommunities.map((comm) => comm.communityId),
+  );
   const defaultCommunityId = canCreatePlatformWide
     ? ""
     : (manageableCommunities[0]?.communityId ?? "");
@@ -130,6 +133,34 @@ export function EventsClient({
         ),
       );
       setActionMessage(dict.cancelSuccess);
+      router.refresh();
+    } catch {
+      setActionError("Bağlantı hatası oluştu.");
+    } finally {
+      setBusyEventId(null);
+    }
+  }
+
+  async function handleCancelEvent(eventId: string) {
+    setBusyEventId(eventId);
+    setActionError(null);
+    setActionMessage(null);
+    try {
+      const response = await fetch(`/api/portal/events/${eventId}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "cancelled" }),
+      });
+      const payload = (await response.json().catch(() => ({}))) as {
+        error?: { message?: string };
+      };
+      if (!response.ok) {
+        setActionError(payload.error?.message ?? "Etkinlik iptal edilemedi.");
+        return;
+      }
+
+      setEvents((prev) => prev.filter((item) => item.id !== eventId));
+      setActionMessage(dict.cancelEventSuccess);
       router.refresh();
     } catch {
       setActionError("Bağlantı hatası oluştu.");
@@ -287,6 +318,27 @@ export function EventsClient({
                       >
                         {isBusy ? dict.registeringButton : dict.registerButton}
                       </button>
+                    )}
+
+                    {(canCreatePlatformWide ||
+                      (item.communityId !== null &&
+                        manageableCommunityIds.has(item.communityId))) && (
+                      <>
+                        <Link
+                          href={`/events/${item.id}/attendees`}
+                          className="border border-brass bg-paper px-3.5 py-2 text-xs font-medium text-navy hover:bg-brass/10"
+                        >
+                          {dict.attendeesLink}
+                        </Link>
+                        <button
+                          type="button"
+                          disabled={isBusy}
+                          onClick={() => void handleCancelEvent(item.id)}
+                          className="border border-border bg-paper px-3.5 py-2 text-xs font-medium text-muted hover:border-red-400 hover:text-red-800 disabled:opacity-60"
+                        >
+                          {isBusy ? dict.cancellingEventButton : dict.cancelEventButton}
+                        </button>
+                      </>
                     )}
                   </div>
                 </div>

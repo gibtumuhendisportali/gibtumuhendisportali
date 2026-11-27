@@ -109,3 +109,27 @@ export const checkInResponseSchema = z.object({
 });
 
 export type CheckInResponse = z.infer<typeof checkInResponseSchema>;
+
+export const eventAttendeeItemSchema = z.object({
+  userId: z.string(),
+  fullName: z.string(),
+  department: z.string(),
+  userType: z.enum(["student", "alumni"]),
+  registrationStatus: z.enum(["confirmed", "cancelled"]),
+  ticketStatus: z.enum(TICKET_STATUSES).nullable(),
+  checkedInAt: z.string().nullable(),
+  registeredAt: z.string(),
+});
+
+export type EventAttendeeItem = z.infer<typeof eventAttendeeItemSchema>;
+
+export const eventAttendeesResponseSchema = z.object({
+  eventId: z.string(),
+  eventTitle: z.string(),
+  capacity: z.number().int(),
+  registeredCount: z.number().int(),
+  checkedInCount: z.number().int(),
+  items: z.array(eventAttendeeItemSchema),
+});
+
+export type EventAttendeesResponse = z.infer<typeof eventAttendeesResponseSchema>;

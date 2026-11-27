@@ -1,12 +1,20 @@
 import { Hono } from "hono";
-import { eventCreateSchema, type ApiErrorResponse, type EventsListResponse } from "@gibtu/shared";
+import {
+  eventCreateSchema,
+  eventStatusUpdateSchema,
+  type ApiErrorResponse,
+  type EventsListResponse,
+} from "@gibtu/shared";
 import type { Env } from "../../env";
 import {
   cancelEventRegistration,
   canManageEventScope,
   createEventRecord,
+  findEventById,
+  listEventAttendees,
   listEventsForMember,
   registerForEvent,
+  updateEventStatus,
 } from "../../lib/db/events";
 import { createRequireAuthMiddleware, type AuthMiddlewareOptions } from "../../middleware/auth";
 import {
@@ -128,6 +136,86 @@ export function createEventRoutes(options: AuthMiddlewareOptions = {}) {
     }
 
     return c.json({ status: "cancelled" }, 200);
+  });
+
+  events.get("/:eventId/attendees", async (c) => {
+    const member = c.get("currentMember");
+    const eventId = c.req.param("eventId");
+
+    const event = await findEventById(c.env.DB, eventId);
+    if (!event) {
+      const payload: ApiErrorResponse = {
+        error: { code: "NOT_FOUND", message: "Etkinlik bulunamadı." },
+      };
+      return c.json(payload, 404);
+    }
+
+    if (!canManageEventScope(member, event.community_id)) {
+      const payload: ApiErrorResponse = {
+        error: {
+          code: "FORBIDDEN",
+          message: "Bu etkinliğin katılımcı listesini görüntüleme yetkiniz yok.",
+        },
+      };
+      return c.json(payload, 403);
+    }
+
+    const attendees = await listEventAttendees(c.env.DB, eventId);
+    if (!attendees) {
+      const payload: ApiErrorResponse = {
+        error: { code: "NOT_FOUND", message: "Etkinlik bulunamadı." },
+      };
+      return c.json(payload, 404);
+    }
+
+    return c.json(attendees, 200);
+  });
+
+  events.patch("/:eventId/status", async (c) => {
+    const member = c.get("currentMember");
+    const eventId = c.req.param("eventId");
+
+    const event = await findEventById(c.env.DB, eventId);
+    if (!event) {
+      const payload: ApiErrorResponse = {
+        error: { code: "NOT_FOUND", message: "Etkinlik bulunamadı." },
+      };
+      return c.json(payload, 404);
+    }
+
+    if (!canManageEventScope(member, event.community_id)) {
+      const payload: ApiErrorResponse = {
+        error: {
+          code: "FORBIDDEN",
+          message: "Bu etkinliğin durumunu değiştirme yetkiniz yok.",
+        },
+      };
+      return c.json(payload, 403);
+    }
+
+    let rawBody: unknown;
+    try {
+      rawBody = await c.req.json();
+    } catch {
+      const payload: ApiErrorResponse = {
+        error: { code: "INVALID_JSON", message: "Geçersiz JSON gövdesi." },
+      };
+      return c.json(payload, 400);
+    }
+
+    const parsed = eventStatusUpdateSchema.safeParse(rawBody);
+    if (!parsed.success) {
+      const payload: ApiErrorResponse = {
+        error: {
+          code: "VALIDATION_ERROR",
+          message: parsed.error.issues[0]?.message ?? "Geçersiz etkinlik durumu.",
+        },
+      };
+      return c.json(payload, 400);
+    }
+
+    await updateEventStatus(c.env.DB, eventId, parsed.data.status);
+    return c.json({ status: parsed.data.status }, 200);
   });
 
   return events;

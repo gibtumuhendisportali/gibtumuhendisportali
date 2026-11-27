@@ -157,3 +157,44 @@ export const adminVerificationsListResponseSchema = z.object({
 });
 
 export type AdminVerificationsListResponse = z.infer<typeof adminVerificationsListResponseSchema>;
+
+export const communitySummarySchema = z.object({
+  id: z.string(),
+  slug: z.string(),
+  name: z.string(),
+});
+
+export type CommunitySummary = z.infer<typeof communitySummarySchema>;
+
+export const adminMemberPermissionItemSchema = z.object({
+  userId: z.string(),
+  fullName: z.string(),
+  email: z.string(),
+  department: z.string(),
+  role: z.enum(USER_ROLES),
+  communityPermissions: z.array(communityPermissionSchema),
+});
+
+export type AdminMemberPermissionItem = z.infer<typeof adminMemberPermissionItemSchema>;
+
+export const adminCommunitiesResponseSchema = z.object({
+  communities: z.array(communitySummarySchema),
+  members: z.array(adminMemberPermissionItemSchema),
+});
+
+export type AdminCommunitiesResponse = z.infer<typeof adminCommunitiesResponseSchema>;
+
+export const communityPermissionGrantSchema = z.object({
+  userId: z.string().min(1, "Üye seçimi zorunludur."),
+  communityId: z.string().min(1, "Topluluk seçimi zorunludur."),
+  role: z.enum(COMMUNITY_ROLES).default("organizer"),
+});
+
+export type CommunityPermissionGrantInput = z.infer<typeof communityPermissionGrantSchema>;
+
+export const communityPermissionRevokeSchema = z.object({
+  userId: z.string().min(1, "Üye seçimi zorunludur."),
+  communityId: z.string().min(1, "Topluluk seçimi zorunludur."),
+});
+
+export type CommunityPermissionRevokeInput = z.infer<typeof communityPermissionRevokeSchema>;

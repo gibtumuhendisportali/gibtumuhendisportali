@@ -1,11 +1,14 @@
 import type {
   CheckInResponse,
+  EventAttendeeItem,
+  EventAttendeesResponse,
   EventCreateInput,
   EventItem,
   EventStatus,
   MeResponse,
   TicketItem,
   TicketStatus,
+  UserType,
 } from "@gibtu/shared";
 import { deriveQrToken, generateQrSalt, hashQrToken } from "../crypto/qr";
 
@@ -459,4 +462,85 @@ export async function checkInTicketByQrToken(
       checkedInAt: now,
     },
   };
+}
+
+export async function listEventAttendees(
+  db: D1Database,
+  eventId: string,
+): Promise<EventAttendeesResponse | null> {
+  const event = await db
+    .prepare(
+      `SELECT id, title, capacity, registered_count FROM events WHERE id = ?1 LIMIT 1`,
+    )
+    .bind(eventId)
+    .first<{
+      id: string;
+      title: string;
+      capacity: number;
+      registered_count: number;
+    }>();
+
+  if (!event) {
+    return null;
+  }
+
+  const rowsRes = await db
+    .prepare(
+      `SELECT r.user_id, p.full_name, p.department, p.user_type,
+              r.status AS registration_status, t.status AS ticket_status,
+              t.checked_in_at, r.created_at AS registered_at
+       FROM registrations r
+       INNER JOIN profiles p ON p.user_id = r.user_id
+       LEFT JOIN tickets t ON t.registration_id = r.id
+       WHERE r.event_id = ?1
+       ORDER BY r.created_at ASC
+       LIMIT 500`,
+    )
+    .bind(eventId)
+    .all<{
+      user_id: string;
+      full_name: string;
+      department: string;
+      user_type: UserType;
+      registration_status: "confirmed" | "cancelled";
+      ticket_status: TicketStatus | null;
+      checked_in_at: string | null;
+      registered_at: string;
+    }>();
+
+  const items: EventAttendeeItem[] = (rowsRes.results ?? []).map((row) => ({
+    userId: row.user_id,
+    fullName: row.full_name,
+    department: row.department,
+    userType: row.user_type,
+    registrationStatus: row.registration_status,
+    ticketStatus: row.ticket_status,
+    checkedInAt: row.checked_in_at,
+    registeredAt: row.registered_at,
+  }));
+
+  const checkedInCount = items.filter((item) => item.ticketStatus === "checked_in").length;
+
+  return {
+    eventId: event.id,
+    eventTitle: event.title,
+    capacity: event.capacity,
+    registeredCount: event.registered_count,
+    checkedInCount,
+    items,
+  };
+}
+
+export async function updateEventStatus(
+  db: D1Database,
+  eventId: string,
+  status: EventStatus,
+): Promise<boolean> {
+  const now = new Date().toISOString();
+  const res = await db
+    .prepare(`UPDATE events SET status = ?1, updated_at = ?2 WHERE id = ?3`)
+    .bind(status, now, eventId)
+    .run();
+
+  return (res.meta?.changes ?? 0) > 0;
 }

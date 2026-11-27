@@ -1,5 +1,6 @@
 import {
   KVKK_POLICY_VERSION,
+  type AdminCommunitiesResponse,
   type AdminVerificationItem,
   type CommunityRole,
   type MeResponse,
@@ -320,6 +321,161 @@ export async function applyVerificationDecision(
           decision: params.decision,
           hasRejectionReason: Boolean(rejectionReason),
         }),
+        now,
+      ),
+  ]);
+}
+
+export async function listAdminCommunitiesAndMembers(
+  db: D1Database,
+): Promise<AdminCommunitiesResponse> {
+  const [communitiesRes, membersRes, permissionsRes] = await Promise.all([
+    db
+      .prepare(`SELECT id, slug, name FROM communities ORDER BY name ASC`)
+      .all<{ id: string; slug: string; name: string }>(),
+    db
+      .prepare(
+        `SELECT u.id AS user_id, u.email, u.role, p.full_name, p.department
+         FROM users u
+         INNER JOIN profiles p ON p.user_id = u.id
+         WHERE u.verification_status = 'verified'
+         ORDER BY p.full_name ASC
+         LIMIT 200`,
+      )
+      .all<{
+        user_id: string;
+        email: string;
+        role: UserRole;
+        full_name: string;
+        department: string;
+      }>(),
+    db
+      .prepare(
+        `SELECT cp.user_id, cp.community_id, c.slug AS community_slug, c.name AS community_name, cp.role
+         FROM community_permissions cp
+         INNER JOIN communities c ON c.id = cp.community_id`,
+      )
+      .all<{
+        user_id: string;
+        community_id: string;
+        community_slug: string;
+        community_name: string;
+        role: CommunityRole;
+      }>(),
+  ]);
+
+  const permsByUser = new Map<
+    string,
+    Array<{
+      communityId: string;
+      communitySlug: string;
+      communityName: string;
+      role: CommunityRole;
+    }>
+  >();
+
+  for (const row of permissionsRes.results ?? []) {
+    const list = permsByUser.get(row.user_id) ?? [];
+    list.push({
+      communityId: row.community_id,
+      communitySlug: row.community_slug,
+      communityName: row.community_name,
+      role: row.role,
+    });
+    permsByUser.set(row.user_id, list);
+  }
+
+  return {
+    communities: communitiesRes.results ?? [],
+    members: (membersRes.results ?? []).map((m) => ({
+      userId: m.user_id,
+      fullName: m.full_name,
+      email: m.email,
+      department: m.department,
+      role: m.role,
+      communityPermissions: permsByUser.get(m.user_id) ?? [],
+    })),
+  };
+}
+
+export async function grantCommunityPermission(
+  db: D1Database,
+  params: {
+    targetUserId: string;
+    communityId: string;
+    role: CommunityRole;
+    actorUserId: string;
+  },
+): Promise<{ ok: true } | { ok: false; code: "NOT_FOUND" | "NOT_VERIFIED" }> {
+  const [userRow, commRow] = await Promise.all([
+    findUserById(db, params.targetUserId),
+    db
+      .prepare(`SELECT id FROM communities WHERE id = ?1 LIMIT 1`)
+      .bind(params.communityId)
+      .first<{ id: string }>(),
+  ]);
+
+  if (!userRow || !commRow) {
+    return { ok: false, code: "NOT_FOUND" };
+  }
+  if (userRow.verification_status !== "verified") {
+    return { ok: false, code: "NOT_VERIFIED" };
+  }
+
+  const now = new Date().toISOString();
+  const permId = crypto.randomUUID();
+  const auditId = crypto.randomUUID();
+
+  await db.batch([
+    db
+      .prepare(
+        `INSERT INTO community_permissions (id, user_id, community_id, role, created_at)
+         VALUES (?1, ?2, ?3, ?4, ?5)
+         ON CONFLICT(user_id, community_id) DO UPDATE SET role = excluded.role`,
+      )
+      .bind(permId, params.targetUserId, params.communityId, params.role, now),
+    db
+      .prepare(
+        `INSERT INTO audit_logs (id, actor_user_id, action, target_type, target_id, metadata_json, created_at)
+         VALUES (?1, ?2, 'community_permission.grant', 'user', ?3, ?4, ?5)`,
+      )
+      .bind(
+        auditId,
+        params.actorUserId,
+        params.targetUserId,
+        JSON.stringify({ communityId: params.communityId, role: params.role }),
+        now,
+      ),
+  ]);
+
+  return { ok: true };
+}
+
+export async function revokeCommunityPermission(
+  db: D1Database,
+  params: {
+    targetUserId: string;
+    communityId: string;
+    actorUserId: string;
+  },
+): Promise<void> {
+  const now = new Date().toISOString();
+  const auditId = crypto.randomUUID();
+
+  await db.batch([
+    db
+      .prepare(`DELETE FROM community_permissions WHERE user_id = ?1 AND community_id = ?2`)
+      .bind(params.targetUserId, params.communityId),
+    db
+      .prepare(
+        `INSERT INTO audit_logs (id, actor_user_id, action, target_type, target_id, metadata_json, created_at)
+         VALUES (?1, ?2, 'community_permission.revoke', 'user', ?3, ?4, ?5)`,
+      )
+      .bind(
+        auditId,
+        params.actorUserId,
+        params.targetUserId,
+        JSON.stringify({ communityId: params.communityId }),
         now,
       ),
   ]);

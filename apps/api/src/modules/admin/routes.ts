@@ -1,6 +1,8 @@
 import { Hono } from "hono";
 import {
   VERIFICATION_STATUSES,
+  communityPermissionGrantSchema,
+  communityPermissionRevokeSchema,
   verificationDecisionSchema,
   type AdminVerificationsListResponse,
   type ApiErrorResponse,
@@ -10,7 +12,10 @@ import type { Env } from "../../env";
 import {
   applyVerificationDecision,
   findUserById,
+  grantCommunityPermission,
+  listAdminCommunitiesAndMembers,
   listVerificationApplications,
+  revokeCommunityPermission,
 } from "../../lib/db/identity";
 import { createRequireAuthMiddleware, type AuthMiddlewareOptions } from "../../middleware/auth";
 import {
@@ -106,6 +111,91 @@ export function createAdminRoutes(options: AuthMiddlewareOptions = {}) {
     });
 
     return c.json({ status: "ok", userId: targetUserId, decision: parsed.data.decision }, 200);
+  });
+
+  admin.get("/communities", async (c) => {
+    const data = await listAdminCommunitiesAndMembers(c.env.DB);
+    return c.json(data, 200);
+  });
+
+  admin.post("/communities/permissions", async (c) => {
+    const actor = c.get("currentMember");
+
+    let rawBody: unknown;
+    try {
+      rawBody = await c.req.json();
+    } catch {
+      const payload: ApiErrorResponse = {
+        error: { code: "INVALID_JSON", message: "Geçersiz JSON gövdesi." },
+      };
+      return c.json(payload, 400);
+    }
+
+    const parsed = communityPermissionGrantSchema.safeParse(rawBody);
+    if (!parsed.success) {
+      const payload: ApiErrorResponse = {
+        error: {
+          code: "VALIDATION_ERROR",
+          message: parsed.error.issues[0]?.message ?? "Yetki bilgileri geçersiz.",
+        },
+      };
+      return c.json(payload, 400);
+    }
+
+    const outcome = await grantCommunityPermission(c.env.DB, {
+      targetUserId: parsed.data.userId,
+      communityId: parsed.data.communityId,
+      role: parsed.data.role,
+      actorUserId: actor.id,
+    });
+
+    if (!outcome.ok) {
+      const payload: ApiErrorResponse = {
+        error: {
+          code: outcome.code,
+          message:
+            outcome.code === "NOT_FOUND"
+              ? "Üye veya topluluk bulunamadı."
+              : "Yalnızca doğrulanmış üyelere topluluk yetkisi verilebilir.",
+        },
+      };
+      return c.json(payload, outcome.code === "NOT_FOUND" ? 404 : 400);
+    }
+
+    return c.json({ status: "ok" }, 200);
+  });
+
+  admin.delete("/communities/permissions", async (c) => {
+    const actor = c.get("currentMember");
+
+    let rawBody: unknown;
+    try {
+      rawBody = await c.req.json();
+    } catch {
+      const payload: ApiErrorResponse = {
+        error: { code: "INVALID_JSON", message: "Geçersiz JSON gövdesi." },
+      };
+      return c.json(payload, 400);
+    }
+
+    const parsed = communityPermissionRevokeSchema.safeParse(rawBody);
+    if (!parsed.success) {
+      const payload: ApiErrorResponse = {
+        error: {
+          code: "VALIDATION_ERROR",
+          message: parsed.error.issues[0]?.message ?? "Yetki kaldırma verisi geçersiz.",
+        },
+      };
+      return c.json(payload, 400);
+    }
+
+    await revokeCommunityPermission(c.env.DB, {
+      targetUserId: parsed.data.userId,
+      communityId: parsed.data.communityId,
+      actorUserId: actor.id,
+    });
+
+    return c.json({ status: "ok" }, 200);
   });
 
   return admin;

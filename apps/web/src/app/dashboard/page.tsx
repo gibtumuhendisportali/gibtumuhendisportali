@@ -108,12 +108,20 @@ export default async function DashboardPage() {
               </Link>
             )}
             {isPlatformAdmin && (
-              <Link
-                href="/admin/verifications"
-                className="border border-brass bg-paper px-3.5 py-1.5 text-sm font-medium text-navy hover:bg-brass/10"
-              >
-                {dict.dashboard.adminQueueLink}
-              </Link>
+              <>
+                <Link
+                  href="/admin/verifications"
+                  className="border border-brass bg-paper px-3.5 py-1.5 text-sm font-medium text-navy hover:bg-brass/10"
+                >
+                  {dict.dashboard.adminQueueLink}
+                </Link>
+                <Link
+                  href="/admin/communities"
+                  className="border border-brass bg-paper px-3.5 py-1.5 text-sm font-medium text-navy hover:bg-brass/10"
+                >
+                  {dict.dashboard.adminCommunitiesLink}
+                </Link>
+              </>
             )}
             <form action="/auth/signout" method="post">
               <button

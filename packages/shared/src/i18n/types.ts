@@ -186,6 +186,7 @@ export interface Dictionary {
     directoryHiddenText: string;
     directoryVisibleText: string;
     adminQueueLink: string;
+    adminCommunitiesLink: string;
     editProfileLink: string;
     directoryLink: string;
     eventsLink: string;
@@ -208,6 +209,15 @@ export interface Dictionary {
     registeredBadge: string;
     checkedInBadge: string;
     viewTicketLink: string;
+    attendeesLink: string;
+    cancelEventButton: string;
+    cancellingEventButton: string;
+    cancelEventSuccess: string;
+    attendeesEyebrow: string;
+    attendeesTitle: string;
+    attendeesEmpty: string;
+    registeredCountLabel: string;
+    checkedInCountLabel: string;
     createSectionTitle: string;
     titleLabel: string;
     descriptionLabel: string;
@@ -339,5 +349,17 @@ export interface Dictionary {
     cancelButton: string;
     decisionSuccess: string;
     decisionError: string;
+  };
+  adminCommunities: {
+    eyebrow: string;
+    title: string;
+    subtitle: string;
+    backToDashboard: string;
+    emptyMembers: string;
+    grantButton: string;
+    revokeButton: string;
+    organizerRoleLabel: string;
+    grantSuccess: string;
+    revokeSuccess: string;
   };
 }
